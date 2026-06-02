@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QT新月 — 个人作品集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --bg-deep:    oklch(8% 0.015 270);
+  --bg-base:    oklch(12% 0.012 270);
+  --bg-raised:  oklch(16% 0.010 270);
+  --bg-high:    oklch(20% 0.008 265);
+  --accent:      oklch(60% 0.18 280);
+  --accent-soft: oklch(50% 0.13 280);
+  --accent-dim:  oklch(30% 0.08 280);
+  --accent-glow: oklch(60% 0.18 280 / 0.3);
+  --gold:       oklch(80% 0.14 95);
+  --text-primary:   oklch(92% 0.01 270);
+  --text-secondary: oklch(72% 0.01 270);
+  --text-muted:     oklch(50% 0.01 265);
+  --border: oklch(100% 0 0 / 0.06);
+  --glass-bg: oklch(100% 0 0 / 0.04);
+  --space-xs: 0.25rem; --space-sm: 0.5rem; --space-md: 1rem;
+  --space-lg: 1.5rem; --space-xl: 2rem; --space-2xl: 3rem;
+  --space-3xl: 5rem; --space-4xl: 8rem;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-base: 1rem;
+  --text-lg: 1.25rem; --text-xl: 1.75rem; --text-2xl: 2.5rem;
+  --text-3xl: 3.5rem; --text-4xl: 5rem;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --header-h: 64px; --content-max: 1100px;
+}
+[data-theme="light"] {
+  --bg-deep:    oklch(97% 0.005 270);
+  --bg-base:    oklch(100% 0 0);
+  --bg-raised:  oklch(95% 0.005 270);
+  --bg-high:    oklch(90% 0.005 270);
+  --text-primary:   oklch(15% 0.01 270);
+  --text-secondary: oklch(35% 0.01 270);
+  --text-muted:     oklch(55% 0.01 265);
+  --border: oklch(0% 0 0 / 0.06);
+  --glass-bg: oklch(100% 0 0 / 0.5);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Zen Kaku Gothic New', 'Hiragino Kaku Gothic ProN', sans-serif;
+  font-size: var(--text-base); line-height: 1.8; font-weight: 350;
+  color: var(--text-primary); background: var(--bg-deep); overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, oklch(45% 0.12 300 / 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 85% 50%, oklch(50% 0.15 280 / 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 40% 80%, oklch(55% 0.08 270 / 0.15) 0%, transparent 60%);
+  background-color: var(--bg-deep);
+}
+img { max-width: 100%; display: block; }
+a { color: var(--accent); text-decoration: none; transition: color 200ms var(--ease-out-expo); }
+a:hover { color: var(--gold); }
+::selection { background: oklch(60% 0.18 280 / 0.3); color: var(--text-primary); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+.container { max-width: var(--content-max); margin-inline: auto; padding-inline: var(--space-xl); }
+
+/* ============================================================
+   NOISE TEXTURE OVERLAY
+   ============================================================ */
+.noise-overlay {
+  position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   HEADER — glass, fixed
+   ============================================================ */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: var(--header-h);
+  background: oklch(14% 0.015 270 / 0.55);
+  backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 oklch(100% 0 0 / 0.03) inset;
+}
+[data-theme="light"] .site-header { background: oklch(100% 0 0 / 0.55); }
+.header-inner { max-width: var(--content-max); margin-inline: auto; padding-inline: var(--space-xl); height: 100%; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: var(--space-sm); font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: var(--text-base); color: var(--text-primary); letter-spacing: 0.04em; }
+.brand-mark { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg, var(--accent), var(--accent-soft)); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #fff; }
+.nav-links { display: flex; align-items: center; gap: var(--space-xl); list-style: none; }
+.nav-links a { font-size: var(--text-sm); font-weight: 500; color: var(--text-secondary); position: relative; padding-block: var(--space-xs); }
+.nav-links a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--accent); border-radius: 1px; transition: width 300ms var(--ease-out-expo); }
+.nav-links a:hover::after { width: 100%; }
+.theme-toggle { background: none; border: 1px solid var(--border); color: var(--text-secondary); width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 200ms; }
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ============================================================
+   HERO — asymmetric, editorial
+   ============================================================ */
+.hero {
+  min-height: 100vh; display: flex; align-items: center; position: relative;
+  padding-block: var(--header-h) 0; overflow: hidden;
+}
+.hero-grid { display: grid; grid-template-columns: 1.3fr 0.7fr; gap: var(--space-3xl); align-items: center; }
+.hero-line { width: 64px; height: 1px; background: oklch(100% 0 0 / 0.15); margin-bottom: var(--space-xl); }
+.hero-pre { font-family: 'Zen Old Mincho', serif; font-size: var(--text-sm); color: var(--gold); letter-spacing: 0.2em; margin-bottom: var(--space-md); }
+.hero-name { font-family: 'Zen Old Mincho', serif; font-weight: 900; font-size: clamp(var(--text-3xl), 8vw, var(--text-4xl)); line-height: 1.05; margin-bottom: var(--space-lg); }
+.hero-name .highlight { color: var(--accent); }
+.hero-role { font-size: var(--text-lg); color: var(--text-secondary); line-height: 1.7; max-width: 480px; margin-bottom: var(--space-xl); }
+.hero-role strong { color: var(--text-primary); font-weight: 500; }
+.hero-cta { display: flex; gap: var(--space-md); flex-wrap: wrap; }
+.btn { display: inline-flex; align-items: center; gap: var(--space-sm); padding: 10px 24px; border-radius: 100px; font-size: var(--text-sm); font-weight: 600; transition: all 300ms var(--ease-out-expo); cursor: pointer; }
+.btn-primary { background: var(--accent); color: #fff; border: none; }
+.btn-primary:hover { background: var(--accent-soft); color: #fff; transform: translateY(-1px); box-shadow: 0 8px 24px var(--accent-glow); }
+.btn-ghost { background: none; border: 1px solid var(--border); color: var(--text-secondary); }
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: var(--glass-bg); }
+.hero-visual {
+  position: relative; display: flex; align-items: center; justify-content: center;
+}
+.hero-avatar-ring {
+  width: clamp(200px, 30vw, 320px); height: clamp(200px, 30vw, 320px);
+  border-radius: 50%;
+  background: oklch(18% 0.05 280);
+  border: 2px solid oklch(60% 0.18 280 / 0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(3rem, 6vw, 6rem);
+  box-shadow: 0 0 60px var(--accent-glow), inset 0 0 30px oklch(60% 0.18 280 / 0.05);
+  animation: avatarPulse 4s ease-in-out infinite;
+  position: relative;
+}
+@keyframes avatarPulse {
+  0%, 100% { box-shadow: 0 0 40px var(--accent-glow); }
+  50% { box-shadow: 0 0 80px var(--accent-glow); }
+}
+.hero-floating-tag {
+  position: absolute; font-size: var(--text-xs); color: var(--text-muted);
+  background: var(--glass-bg); backdrop-filter: blur(12px);
+  border: 1px solid var(--border); border-radius: 100px;
+  padding: 4px 14px; white-space: nowrap;
+}
+.hero-floating-tag.t1 { top: 5%; right: 0; animation: floatTag 6s ease-in-out infinite; }
+.hero-floating-tag.t2 { bottom: 20%; left: -5%; animation: floatTag 5s ease-in-out infinite 1s; }
+.hero-floating-tag.t3 { top: 40%; right: -10%; animation: floatTag 7s ease-in-out infinite 2s; }
+@keyframes floatTag {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.hero-scroll { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: var(--space-sm); }
+.hero-scroll span { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: 0.1em; }
+.scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--accent-dim), transparent); animation: pulseScroll 2s ease-in-out infinite; }
+@keyframes pulseScroll { 0%,100% { opacity: 0.3; } 50% { opacity: 1; } }
+@media (max-width: 768px) {
+  .hero { min-height: auto; padding-block: calc(var(--header-h) + var(--space-4xl)) var(--space-3xl); }
+  .hero-grid { grid-template-columns: 1fr; gap: var(--space-2xl); }
+  .hero-visual { order: -1; }
+  .hero-avatar-ring { width: 160px; height: 160px; font-size: 3rem; }
+  .hero-floating-tag { display: none; }
+}
+
+/* ============================================================
+   SECTION COMMON
+   ============================================================ */
+.section { padding-block: var(--space-4xl); position: relative; }
+.section-label { font-family: 'Zen Old Mincho', serif; font-size: var(--text-xs); color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: var(--space-md); }
+.section-title { font-family: 'Zen Old Mincho', serif; font-weight: 900; font-size: var(--text-2xl); margin-bottom: var(--space-2xl); line-height: 1.2; }
+.section-divider { width: 48px; height: 1px; background: oklch(100% 0 0 / 0.12); margin-bottom: var(--space-2xl); }
+
+/* ============================================================
+   ABOUT — 70/30 split
+   ============================================================ */
+.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3xl); align-items: start; }
+.about-text { font-size: var(--text-base); color: var(--text-secondary); line-height: 2; }
+.about-text p { margin-bottom: var(--space-md); }
+.about-text strong { color: var(--text-primary); font-weight: 500; }
+.about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+.stat-card {
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 16px; padding: var(--space-xl);
+  text-align: center; transition: all 300ms var(--ease-out-expo);
+}
+.stat-card:hover { border-color: oklch(60% 0.18 280 / 0.3); transform: translateY(-2px); }
+.stat-number { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 900; font-size: var(--text-2xl); color: var(--accent); }
+.stat-label { font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-xs); }
+@media (max-width: 768px) {
+  .about-grid { grid-template-columns: 1fr; }
+  .about-stats { grid-template-columns: 1fr 1fr; }
+}
+
+/* ============================================================
+   SKILLS — flowing tags
+   ============================================================ */
+.skill-category { margin-bottom: var(--space-2xl); }
+.skill-category-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700; font-size: var(--text-sm); color: var(--text-muted); margin-bottom: var(--space-md); letter-spacing: 0.06em; text-transform: uppercase; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.skill-tag {
+  padding: 6px 16px; border-radius: 100px; font-size: var(--text-sm); font-weight: 500;
+  background: var(--glass-bg); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border); color: var(--text-secondary);
+  transition: all 300ms var(--ease-out-expo);
+}
+.skill-tag:hover { border-color: var(--accent-dim); color: var(--accent); background: oklch(60% 0.18 280 / 0.08); transform: translateY(-1px); }
+.skill-tag.primary { border-color: oklch(60% 0.18 280 / 0.2); color: var(--accent); background: oklch(60% 0.18 280 / 0.06); }
+
+/* ============================================================
+   PROJECTS — editorial cards with staggered layout
+   ============================================================ */
+.project-card {
+  display: grid; grid-template-columns: 1fr 1.2fr; gap: var(--space-3xl);
+  padding: var(--space-2xl); margin-bottom: var(--space-2xl);
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 20px;
+  transition: all 400ms var(--ease-out-expo);
+  opacity: 0; transform: translateY(30px);
+  animation: fadeInUp 600ms var(--ease-out-expo) forwards;
+  animation-play-state: paused;
+}
+.project-card.visible { animation-play-state: running; }
+.project-card:nth-child(even) { grid-template-columns: 1.2fr 1fr; }
+.project-card:nth-child(even) .project-visual { order: 2; }
+.project-card:hover {
+  border-color: oklch(60% 0.18 280 / 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 48px oklch(0% 0 0 / 0.3);
+}
+.project-visual {
+  border-radius: 12px; overflow: hidden; position: relative;
+  min-height: 200px; display: flex; align-items: center; justify-content: center;
+  font-size: 4rem; background: oklch(18% 0.05 280);
+}
+.project-number { font-family: 'Zen Old Mincho', serif; font-size: var(--text-xs); color: var(--gold); letter-spacing: 0.15em; margin-bottom: var(--space-sm); }
+.project-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: var(--text-xl); color: var(--text-primary); margin-bottom: var(--space-sm); line-height: 1.3; }
+.project-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-md); }
+.project-tech { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-lg); }
+@media (max-width: 768px) {
+  .project-card, .project-card:nth-child(even) { grid-template-columns: 1fr; gap: var(--space-xl); }
+  .project-card:nth-child(even) .project-visual { order: -1; }
+  .project-visual { min-height: 160px; }
+}
+
+/* ============================================================
+   EXPERIENCE TIMELINE
+   ============================================================ */
+.timeline { position: relative; padding-left: 32px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 0; bottom: 0; width: 1px; background: oklch(100% 0 0 / 0.1); }
+.timeline-item { position: relative; padding-bottom: var(--space-2xl); }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot { position: absolute; left: -28px; top: 6px; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 3px solid var(--bg-deep); box-shadow: 0 0 12px var(--accent-glow); }
+.timeline-date { font-size: var(--text-xs); color: var(--gold); letter-spacing: 0.1em; margin-bottom: var(--space-xs); }
+.timeline-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700; font-size: var(--text-base); color: var(--text-primary); }
+.timeline-sub { font-size: var(--text-sm); color: var(--text-muted); }
+.timeline-desc { font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-sm); line-height: 1.7; }
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); }
+.contact-item {
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 16px; padding: var(--space-xl);
+  display: flex; align-items: center; gap: var(--space-lg); transition: all 300ms var(--ease-out-expo);
+}
+.contact-item:hover { border-color: oklch(60% 0.18 280 / 0.2); }
+.contact-icon { font-size: 1.5rem; width: 48px; height: 48px; border-radius: 12px; background: oklch(60% 0.18 280 / 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.contact-label { font-size: var(--text-xs); color: var(--text-muted); }
+.contact-value { font-size: var(--text-base); color: var(--text-primary); font-weight: 500; }
+@media (max-width: 640px) { .contact-grid { grid-template-columns: 1fr; } }
+
+/* ============================================================
+   BLOG
+   ============================================================ */
+.blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-xl); }
+.blog-card {
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 16px; padding: var(--space-xl);
+  cursor: pointer; transition: all 300ms var(--ease-out-expo);
+}
+.blog-card:hover { border-color: oklch(60% 0.18 280 / 0.3); transform: translateY(-4px); box-shadow: 0 12px 48px oklch(0% 0 0 / 0.3); }
+.blog-card-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700; font-size: var(--text-lg); color: var(--text-primary); margin-bottom: var(--space-sm); line-height: 1.4; }
+.blog-card-date { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-md); }
+.blog-card-excerpt { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-empty { text-align: center; color: var(--text-muted); padding: var(--space-3xl); font-size: var(--text-sm); }
+
+/* Article Detail Overlay */
+.blog-overlay {
+  position: fixed; inset: 0; z-index: 200; background: oklch(0% 0 0 / 0.85);
+  backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center;
+  padding: var(--space-xl);
+}
+.blog-overlay.open { display: flex; }
+.blog-detail {
+  background: var(--bg-base); border: 1px solid var(--border); border-radius: 20px;
+  max-width: 720px; width: 100%; max-height: 85vh; overflow-y: auto; padding: var(--space-2xl);
+  position: relative; animation: fadeInUp 300ms var(--ease-out-expo);
+}
+.blog-detail-close {
+  position: absolute; top: var(--space-md); right: var(--space-md);
+  width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
+  background: var(--glass-bg); color: var(--text-secondary); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: var(--text-lg);
+  transition: all 200ms;
+}
+.blog-detail-close:hover { border-color: var(--accent); color: var(--accent); }
+.blog-detail-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: var(--text-xl); color: var(--text-primary); margin-bottom: var(--space-sm); }
+.blog-detail-date { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-xl); }
+.blog-detail-body { font-size: var(--text-base); color: var(--text-secondary); line-height: 2; }
+.blog-detail-body img { max-width: 100%; border-radius: 12px; margin: var(--space-lg) 0; }
+.blog-detail-body a { color: var(--accent); text-decoration: underline; }
+.blog-detail-body h2, .blog-detail-body h3 { color: var(--text-primary); margin: var(--space-xl) 0 var(--space-md); }
+.blog-detail-body p { margin-bottom: var(--space-md); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-footer { border-top: 1px solid var(--border); padding-block: var(--space-2xl); text-align: center; color: var(--text-muted); font-size: var(--text-xs); }
+.footer-decor { font-family: 'Zen Old Mincho', serif; color: oklch(35% 0.03 270); letter-spacing: 0.2em; margin-bottom: var(--space-xs); }
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+.reveal { opacity: 0; transform: translateY(30px); transition: all 600ms var(--ease-out-expo); }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  html { scroll-behavior: auto; } .reveal { opacity: 1; transform: none; }
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: oklch(25% 0.01 270); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="noise-overlay" aria-hidden="true"></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="#" class="brand"><span class="brand-mark">月</span><span>QT新月</span></a>
+    <nav aria-label="主导航">
+      <ul class="nav-links">
+        <li><a href="#about">关于</a></li>
+        <li><a href="#skills">技能</a></li>
+        <li><a href="#projects">项目</a></li>
+        <li><a href="#blog">博客</a></li>
+        <li><a href="#contact">联系</a></li>
+        <li><button class="theme-toggle" id="themeToggle" aria-label="切换主题">🌙</button></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="hero-line"></div>
+      <p class="hero-pre">Code · Data · Digital</p>
+      <h1 class="hero-name">
+        <span class="highlight">QT新月</span>
+      </h1>
+      <p class="hero-role">
+        喜欢研究数码产品和自动化工具。<br>
+        深圳职业技术大学
+      </p>
+      <div class="hero-cta">
+        <a href="#projects" class="btn btn-primary">查看作品 →</a>
+        <a href="#contact" class="btn btn-ghost">联系方式</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-avatar-ring">月</div>
+      <span class="hero-floating-tag t1">Python · Playwright</span>
+      <span class="hero-floating-tag t2">React · Streamlit</span>
+      <span class="hero-floating-tag t3">Node.js · SQL</span>
+    </div>
+  </div>
+  <div class="hero-scroll" aria-hidden="true">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="container">
+    <p class="section-label">About</p>
+    <h2 class="section-title">关于我</h2>
+    <div class="section-divider"></div>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>坐标<strong>深圳</strong>，深圳职业技术大学专科在读，同时就职于<strong>海客熵连科技</strong>，负责多平台广告数据爬取系统的架构与开发。</p>
+        <p>我的技术栈横跨数据工程与前端创作——从大型自动化数据采集系统到 React 动画视频，从浏览器逆向到 UI 设计。相信<strong>好工具应该既强大又好看</strong>。</p>
+        <p>工作之外是重度动漫爱好者（新海诚、EVA、FF7），正在学习日语（N2→N1），喜欢用代码做创意内容。</p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-card"><div class="stat-number">5+</div><div class="stat-label">数据平台集成</div></div>
+        <div class="stat-card"><div class="stat-number">300+</div><div class="stat-label">活跃广告账号</div></div>
+        <div class="stat-card"><div class="stat-number">2+年</div><div class="stat-label">自动化开发</div></div>
+        <div class="stat-card"><div class="stat-number">N2</div><div class="stat-label">日语能力</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="section" id="skills">
+  <div class="container">
+    <p class="section-label">Skills</p>
+    <h2 class="section-title">技能栈</h2>
+    <div class="section-divider"></div>
+    <div class="skill-category">
+      <h3 class="skill-category-title">核心</h3>
+      <div class="skill-tags">
+        <span class="skill-tag primary">Python</span>
+        <span class="skill-tag primary">Playwright</span>
+        <span class="skill-tag primary">React</span>
+        <span class="skill-tag primary">Node.js</span>
+        <span class="skill-tag primary">Streamlit</span>
+      </div>
+    </div>
+    <div class="skill-category">
+      <h3 class="skill-category-title">数据 & 自动化</h3>
+      <div class="skill-tags">
+        <span class="skill-tag">Web Scraping</span>
+        <span class="skill-tag">Browser Automation</span>
+        <span class="skill-tag">Pandas</span>
+        <span class="skill-tag">SQLite</span>
+        <span class="skill-tag">Excel/CSV</span>
+        <span class="skill-tag">REST APIs</span>
+        <span class="skill-tag">Bearer Auth</span>
+      </div>
+    </div>
+    <div class="skill-category">
+      <h3 class="skill-category-title">前端 & 创作</h3>
+      <div class="skill-tags">
+        <span class="skill-tag">HTML/CSS</span>
+        <span class="skill-tag">JavaScript</span>
+        <span class="skill-tag">Vite</span>
+        <span class="skill-tag">Remotion</span>
+        <span class="skill-tag">SVG Animation</span>
+        <span class="skill-tag">Responsive Design</span>
+      </div>
+    </div>
+    <div class="skill-category">
+      <h3 class="skill-category-title">工具 & 运维</h3>
+      <div class="skill-tags">
+        <span class="skill-tag">Git/GitHub</span>
+        <span class="skill-tag">Linux/WSL</span>
+        <span class="skill-tag">Nginx</span>
+        <span class="skill-tag">Docker</span>
+        <span class="skill-tag">CI/CD</span>
+        <span class="skill-tag">API Testing</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="section" id="projects">
+  <div class="container">
+    <p class="section-label">Projects</p>
+    <h2 class="section-title">项目作品</h2>
+    <div class="section-divider"></div>
+
+    <!-- Project 1 -->
+    <article class="project-card" data-reveal>
+      <div class="project-visual" style="background:linear-gradient(135deg,#1a0533,#2d1b69)">🕷️</div>
+      <div>
+        <p class="project-number">01 / 数据工程</p>
+        <h3 class="project-title">多平台广告数据爬取系统</h3>
+        <p class="project-desc">集成棕熊、GIMC、兴连、广灵、zxkj6 五个广告平台的自动化数据采集系统。基于 Playwright 浏览器自动化 + Bearer Token 认证，通过 Streamlit 仪表盘输出 CSV/Excel 报表，覆盖 328+ 活跃广告账号的日常消耗监控。</p>
+        <div class="project-tech">
+          <span class="skill-tag">Python</span><span class="skill-tag">Playwright</span><span class="skill-tag">Streamlit</span><span class="skill-tag">Excel</span><span class="skill-tag">REST API</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Project 2 -->
+    <article class="project-card" data-reveal>
+      <div class="project-visual" style="background:linear-gradient(135deg,#0f0c29,#302260)">✋</div>
+      <div>
+        <p class="project-number">02 / AI · 毕设</p>
+        <h3 class="project-title">手势控制 PPT 系统</h3>
+        <p class="project-desc">基于 MediaPipe 21点手部关键点检测的实时手势识别系统。支持单指/双指/握拳/OK等6种手势，比例分析法不受距离影响，滑动窗口防抖+握拳锁死安全机制，CustomTkinter 暗黑风格桌面UI，720P下 20+FPS 实时处理。</p>
+        <div class="project-tech">
+          <span class="skill-tag">Python</span><span class="skill-tag">MediaPipe</span><span class="skill-tag">OpenCV</span><span class="skill-tag">CustomTkinter</span><span class="skill-tag">PyAutoGUI</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Project 3 -->
+    <article class="project-card" data-reveal>
+      <div class="project-visual" style="background:linear-gradient(135deg,#1a0a2e,#4a1942)">🎨</div>
+      <div>
+        <p class="project-number">03 / 深度学习</p>
+        <h3 class="project-title">卡通风格迁移系统 (CartoonGAN)</h3>
+        <p class="project-desc">集成 AnimeGAN2 与 ArcaneGAN 多模型风格迁移应用。支持新海誠/宮崎駿/Arcane等5种动漫风格，覆盖图片+视频双模式转换，Gradio Web界面一键分享，含人脸检测裁剪与高斯平滑后处理。</p>
+        <div class="project-tech">
+          <span class="skill-tag">PyTorch</span><span class="skill-tag">AnimeGAN2</span><span class="skill-tag">Gradio</span><span class="skill-tag">OpenCV</span><span class="skill-tag">GAN</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Project 4 -->
+    <article class="project-card" data-reveal>
+      <div class="project-visual" style="background:linear-gradient(135deg,#1c1c4a,#2a5298)">📰</div>
+      <div>
+        <p class="project-number">04 / NLP</p>
+        <h3 class="project-title">多模型新闻文本分类系统</h3>
+        <p class="project-desc">集成 TextCNN / TextRNN / 朴素贝叶斯三种架构的头条新闻6分类系统。使用腾讯 AI Lab 中文词向量增强语义理解，模块化 Config 配置设计，包含完整的数据预处理、模型训练、评估对比流程。</p>
+        <div class="project-tech">
+          <span class="skill-tag">TensorFlow</span><span class="skill-tag">TextCNN</span><span class="skill-tag">NLP</span><span class="skill-tag">Jieba</span><span class="skill-tag">词向量</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Project 5 -->
+    <article class="project-card" data-reveal>
+      <div class="project-visual" style="background:linear-gradient(135deg,#1a3a1a,#2d5a1e)">🗺️</div>
+      <div>
+        <p class="project-number">05 / 数据可视化</p>
+        <h3 class="project-title">梅州美食地理可视化系统</h3>
+        <p class="project-desc">基于 Pyecharts 的客家美食与水果地理分布交互式可视化。含地图散点、密度分布、月度柱状图、特色饼图、美食推荐轮播等多维图表，数据涵盖9道菜品+5种水果，含店铺推荐与采摘农场信息。</p>
+        <div class="project-tech">
+          <span class="skill-tag">Python</span><span class="skill-tag">Pyecharts</span><span class="skill-tag">Geo</span><span class="skill-tag">数据可视化</span><span class="skill-tag">HTML</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Project 6 -->
+    <article class="project-card" data-reveal>
+      <div class="project-visual" style="background:linear-gradient(135deg,#1a1a3e,#0d0d2b)">🇧🇷</div>
+      <div>
+        <p class="project-number">06 / 数据采集</p>
+        <h3 class="project-title">巴西 CNPJ 商业数据爬虫</h3>
+        <p class="project-desc">基于 BrasilAPI + Playwright 的企业资质数据采集系统，覆盖巴西全境企业的工商登记信息、税务状态、股东结构等核心数据，支持批量查询与结构化导出。</p>
+        <div class="project-tech">
+          <span class="skill-tag">Python</span><span class="skill-tag">Playwright</span><span class="skill-tag">BrasilAPI</span><span class="skill-tag">Data Pipeline</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Project 7 -->
+    <article class="project-card" data-reveal>
+      <div class="project-visual" style="background:linear-gradient(135deg,#2e1a3e,#5a1a6e)">✍️</div>
+      <div>
+        <p class="project-number">07 / 深度学习</p>
+        <h3 class="project-title">日语假名手写识别系统</h3>
+        <p class="project-desc">基于 CNN 的 Kuzushiji-49 日本草书字符识别应用。3层卷积块+BatchNorm+Dropout 架构，Tkinter 手写板 GUI 实时识别，K49 数据集49类假名分类，含 TensorBoard 训练日志与模型评估。</p>
+        <div class="project-tech">
+          <span class="skill-tag">TensorFlow</span><span class="skill-tag">CNN</span><span class="skill-tag">Tkinter</span><span class="skill-tag">Keras</span><span class="skill-tag">OpenCV</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- Project 8 -->
+    <article class="project-card" data-reveal>
+      <div class="project-visual" style="background:linear-gradient(135deg,#1a3a2e,#0d4a3e)">🛒</div>
+      <div>
+        <p class="project-number">08 / 全栈开发</p>
+        <h3 class="project-title">动漫商城管理系统</h3>
+        <p class="project-desc">Java Servlet MVC 架构后端 + 微信小程序客户端的完整电商应用。含商品CRUD、图片上传、用户管理、分类筛选等功能，MySQL 数据存储，小程序端支持首页浏览、列表搜索、编辑管理。</p>
+        <div class="project-tech">
+          <span class="skill-tag">Java</span><span class="skill-tag">Servlet</span><span class="skill-tag">MySQL</span><span class="skill-tag">微信小程序</span><span class="skill-tag">JSP</span>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section class="section" id="blog">
+  <div class="container">
+    <p class="section-label">Blog</p>
+    <h2 class="section-title">博客</h2>
+    <div class="section-divider"></div>
+    <div class="blog-grid" id="blogGrid">
+      <div class="blog-empty">加载中...</div>
+    </div>
+  </div>
+</section>
+
+<!-- Blog Detail Overlay -->
+<div class="blog-overlay" id="blogOverlay">
+  <article class="blog-detail">
+    <button class="blog-detail-close" onclick="closeBlog()">&times;</button>
+    <h2 class="blog-detail-title" id="blogDetailTitle"></h2>
+    <p class="blog-detail-date" id="blogDetailDate"></p>
+    <div class="blog-detail-body" id="blogDetailBody"></div>
+  </article>
+</div>
+
+<!-- EXPERIENCE -->
+<section class="section">
+  <div class="container">
+    <p class="section-label">Experience</p>
+    <h2 class="section-title">经历</h2>
+    <div class="section-divider"></div>
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <p class="timeline-date">现在</p>
+        <h3 class="timeline-title">多平台广告数据系统负责人</h3>
+        <p class="timeline-sub">海客熵连科技</p>
+        <p class="timeline-desc">设计并维护五平台广告数据采集架构，日均处理 300+ 账号数据，输出标准化报告。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <p class="timeline-date">现在</p>
+        <h3 class="timeline-title">专科在读</h3>
+        <p class="timeline-sub">深圳职业技术大学</p>
+        <p class="timeline-desc">研究方向：计算机视觉人机交互。毕设项目：手势控制 PPT 系统。</p>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <p class="timeline-date">持续</p>
+        <h3 class="timeline-title">日语学习 N2 → N1</h3>
+        <p class="timeline-sub">自学</p>
+        <p class="timeline-desc">通过动漫、日剧和原版教材系统学习日语，目标 N1 合格。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="container">
+    <p class="section-label">Contact</p>
+    <h2 class="section-title">联系我</h2>
+    <div class="section-divider"></div>
+    <div class="contact-grid">
+      <a href="https://github.com/qtXingYue" class="contact-item" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">
+        <div class="contact-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        </div>
+        <div><p class="contact-label">GitHub</p><p class="contact-value">github.com/qtXingYue</p></div>
+      </a>
+      <a href="https://qtxingyue.me" class="contact-item" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;">
+        <div class="contact-icon">🌐</div>
+        <div><p class="contact-label">Website</p><p class="contact-value">qtxingyue.me</p></div>
+      </a>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div><p class="contact-label">Location</p><p class="contact-value">中国 · 深圳</p></div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">🎓</div>
+        <div><p class="contact-label">School</p><p class="contact-value">深圳职业技术大学</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <p class="footer-decor">新 · 月 · 作 · 品</p>
+  <p>&copy; 2026 QT新月 — 用心构建</p>
+</footer>
+
+<script>
+// Theme toggle
+const toggle = document.getElementById('themeToggle');
+const html = document.documentElement;
+const saved = localStorage.getItem('theme');
+if (saved) html.dataset.theme = saved;
+toggle.textContent = html.dataset.theme === 'light' ? '☀️' : '🌙';
+toggle.addEventListener('click', () => {
+  const next = html.dataset.theme === 'light' ? 'dark' : 'light';
+  html.dataset.theme = next;
+  localStorage.setItem('theme', next);
+  toggle.textContent = next === 'light' ? '☀️' : '🌙';
+});
+
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('[data-reveal], .project-card').forEach(el => observer.observe(el));
+
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth' });
+  });
+});
+
+// Blog - fetch & render
+async function loadBlog() {
+  const grid = document.getElementById('blogGrid');
+  try {
+    const res = await fetch('/api/articles');
+    const articles = await res.json();
+    if (!articles.length) {
+      grid.innerHTML = '<div class="blog-empty">还没有文章，敬请期待 ✦</div>';
+      return;
+    }
+    grid.innerHTML = articles.map(a => `
+      <article class="blog-card" onclick="openBlog('${a.slug}')">
+        <h3 class="blog-card-title">${escapeHtml(a.title)}</h3>
+        <p class="blog-card-date">${a.created_at ? a.created_at.slice(0, 10) : ''}</p>
+        <p class="blog-card-excerpt">${escapeHtml(a.excerpt || '')}</p>
+      </article>
+    `).join('');
+  } catch (e) {
+    grid.innerHTML = '<div class="blog-empty">加载失败，请稍后重试</div>';
+  }
+}
+
+async function openBlog(slug) {
+  try {
+    const res = await fetch('/api/articles/' + slug);
+    const a = await res.json();
+    document.getElementById('blogDetailTitle').textContent = a.title;
+    document.getElementById('blogDetailDate').textContent = a.created_at ? a.created_at.slice(0, 10) : '';
+    document.getElementById('blogDetailBody').innerHTML = a.content || '';
+    document.getElementById('blogOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } catch (e) {
+    alert('文章加载失败');
+  }
+}
+
+function closeBlog() {
+  document.getElementById('blogOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('blogOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeBlog();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeBlog();
+});
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+loadBlog();
+</script>
+
+<!-- Sakura Analytics Tracker -->
+<script async>
+(function(){var u=new URL(location.href);fetch("/api/analytics/hit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({path:u.pathname,title:document.title,ref:document.referrer||""})}).catch(function(){})})();
+</script>
+
+</body>
+</html>
