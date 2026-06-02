@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动漫商城管理系统 — 课程设计报告</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a1a;color:#ddd;padding:2rem;line-height:1.8}
+.container{max-width:800px;margin:0 auto}
+h1{color:#8b5cf6;font-size:2rem;text-align:center;margin-bottom:.5rem}
+.meta{text-align:center;color:#666;font-size:.875rem;margin-bottom:2rem;border-bottom:1px solid #222;padding-bottom:1rem}
+h2{color:#8b5cf6;font-size:1.25rem;margin:2rem 0 .75rem;border-left:3px solid #8b5cf6;padding-left:.75rem}
+p{margin-bottom:.75rem;color:#ccc}
+table{width:100%;border-collapse:collapse;margin:1rem 0;background:#111;border-radius:8px;overflow:hidden}
+th,td{padding:.75rem;text-align:left;border-bottom:1px solid #222}
+th{color:#666;font-weight:500;background:#0d0d0d}
+code{background:#1a1a3e;padding:2px 8px;border-radius:4px;font-size:.875rem;color:#8b5cf6}
+ul{padding-left:1.5rem;margin:.75rem 0}
+li{margin-bottom:.25rem;color:#ccc}
+img{max-width:100%;border-radius:8px;margin:1rem 0;display:block}
+.back{display:inline-block;margin:2rem 0;color:#8b5cf6;text-decoration:none}
+.back:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>动漫商城管理系统</h1>
+<p class="meta">移动应用开发课程设计 · 钟文清 · 230200813</p>
+
+<h2>项目概述</h2>
+<p>基于 <strong>Java Servlet MVC</strong> 架构后端 + <strong>微信小程序</strong> 前端的动漫商品管理全栈应用。实现商品 CRUD、图片上传、搜索筛选、列表/详情双视图等完整电商功能。</p>
+
+<h2>技术架构</h2>
+<table>
+<tr><th>层次</th><th>技术</th><th>职责</th></tr>
+<tr><td>数据库</td><td>MySQL 8.0</td><td>db_store 库，tb_product 表</td></tr>
+<tr><td>实体层</td><td>Java Bean (Product)</td><td>商品属性映射（_id/name/price/source/image）</td></tr>
+<tr><td>数据访问</td><td>DAO 模式</td><td>SQL 查询、CRUD 操作、批量删除</td></tr>
+<tr><td>业务逻辑</td><td>Service 层</td><td>数据验证、请求封装、业务编排</td></tr>
+<tr><td>控制层</td><td>Servlet (7个控制器)</td><td>HTTP 请求路由、JSON 响应（Jackson）</td></tr>
+<tr><td>前端</td><td>微信小程序</td><td>WXML/WXSS/JS，6 个页面</td></tr>
+</table>
+
+<h2>Servlet API 接口</h2>
+<table>
+<tr><th>Servlet</th><th>功能</th><th>HTTP 方法</th></tr>
+<tr><td>ProductList</td><td>商品列表（含搜索）</td><td>GET</td></tr>
+<tr><td>ProductShow</td><td>商品详情</td><td>GET ?_id=</td></tr>
+<tr><td>ProductAdd</td><td>添加商品</td><td>POST</td></tr>
+<tr><td>ProductEdit</td><td>修改商品信息</td><td>POST</td></tr>
+<tr><td>ProductDelete</td><td>删除单个商品</td><td>GET ?_id=</td></tr>
+<tr><td>ImageUpload</td><td>上传商品图片</td><td>POST multipart</td></tr>
+<tr><td>ImageDelete / ImageEdit</td><td>删除/更换商品图片</td><td>GET + POST</td></tr>
+</table>
+
+<h2>小程序页面</h2>
+<table>
+<tr><th>页面</th><th>功能</th></tr>
+<tr><td>首页（home）</td><td>商品网格展示，下拉刷新加载</td></tr>
+<tr><td>列表（list）</td><td>纵向列表视图，TabBar 切换</td></tr>
+<tr><td>详情（show）</td><td>商品大图 + 详情信息</td></tr>
+<tr><td>添加（add）</td><td>表单录入新商品 + 图片上传</td></tr>
+<tr><td>编辑（edit）</td><td>修改已有商品信息</td></tr>
+<tr><td>我的（me）</td><td>用户管理入口</td></tr>
+</table>
+
+<h2>界面展示</h2>
+<p><strong>MySQL 数据库设计（db_store / tb_product）：</strong></p>
+<img src="wx-store-imgs/image1.png" alt="数据库设计">
+
+<p><strong>浏览器测试 JSON 接口（ProductList Servlet）：</strong></p>
+<img src="wx-store-imgs/image2.png" alt="浏览器测试JSON接口">
+
+<p><strong>小程序首页 — 商品网格展示：</strong></p>
+<img src="wx-store-imgs/image3.png" alt="小程序首页">
+
+<p><strong>小程序商品详情页：</strong></p>
+<img src="wx-store-imgs/image4.png" alt="商品详情页">
+
+<p><strong>Eclipse 项目结构（MVC 三层架构）：</strong></p>
+<img src="wx-store-imgs/image5.png" alt="Eclipse项目结构">
+
+<a href="../index.html" class="back">← 返回作品集</a>
+
+</div>
+</body>
+</html>
