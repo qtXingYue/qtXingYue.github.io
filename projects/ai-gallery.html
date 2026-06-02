@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 图片作品集 — QT新月</title>
+<meta name="description" content="QT新月的 AI 生成图片作品集，包含文生图、图生图等 AI 艺术创作。">
+<meta property="og:title" content="AI 图片作品集 — QT新月">
+<meta property="og:description" content="文生图 · 图生图 · AI 艺术创作">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;800;900&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   DESIGN TOKENS — matching main portfolio
+   ============================================================ */
+:root {
+  --bg-deep:    oklch(8% 0.015 270);
+  --bg-base:    oklch(12% 0.012 270);
+  --bg-raised:  oklch(16% 0.010 270);
+  --bg-high:    oklch(20% 0.008 265);
+  --accent:      oklch(60% 0.18 280);
+  --accent-soft: oklch(50% 0.13 280);
+  --accent-dim:  oklch(30% 0.08 280);
+  --accent-glow: oklch(60% 0.18 280 / 0.3);
+  --gold:       oklch(80% 0.14 95);
+  --text-primary:   oklch(92% 0.01 270);
+  --text-secondary: oklch(72% 0.01 270);
+  --text-muted:     oklch(50% 0.01 265);
+  --border: oklch(100% 0 0 / 0.06);
+  --glass-bg: oklch(100% 0 0 / 0.04);
+  --space-xs: 0.25rem; --space-sm: 0.5rem; --space-md: 1rem;
+  --space-lg: 1.5rem; --space-xl: 2rem; --space-2xl: 3rem;
+  --space-3xl: 5rem; --space-4xl: 8rem;
+  --text-xs: 0.75rem; --text-sm: 0.875rem; --text-base: 1rem;
+  --text-lg: 1.25rem; --text-xl: 1.75rem; --text-2xl: 2.5rem;
+  --text-3xl: 3.5rem;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --header-h: 64px; --content-max: 1200px;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Hiragino Sans GB', system-ui, -apple-system, sans-serif;
+  font-size: var(--text-base); line-height: 1.8; font-weight: 400;
+  color: var(--text-primary); background: var(--bg-deep); overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: -2;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, oklch(45% 0.12 300 / 0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 85% 50%, oklch(50% 0.15 280 / 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 40% 80%, oklch(55% 0.08 270 / 0.15) 0%, transparent 60%);
+  background-color: var(--bg-deep);
+}
+img { max-width: 100%; display: block; }
+a { color: var(--accent); text-decoration: none; transition: color 200ms var(--ease-out-expo); }
+a:hover { color: var(--gold); }
+::selection { background: oklch(60% 0.18 280 / 0.3); color: var(--text-primary); }
+.container { max-width: var(--content-max); margin-inline: auto; padding-inline: var(--space-xl); }
+
+/* ============================================================
+   NOISE OVERLAY
+   ============================================================ */
+.noise-overlay {
+  position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   HEADER — matching main
+   ============================================================ */
+.site-header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: var(--header-h);
+  background: oklch(14% 0.015 270 / 0.55);
+  backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: 0 1px 0 oklch(100% 0 0 / 0.03) inset;
+}
+.header-inner {
+  max-width: var(--content-max); margin-inline: auto; padding-inline: var(--space-xl);
+  height: 100%; display: flex; align-items: center; justify-content: space-between;
+}
+.brand {
+  display: flex; align-items: center; gap: var(--space-sm);
+  font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800;
+  font-size: var(--text-base); color: var(--text-primary); letter-spacing: 0.04em;
+}
+.brand-mark {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; color: #fff;
+}
+.nav-links { display: flex; align-items: center; gap: var(--space-xl); list-style: none; }
+.nav-links a { font-size: var(--text-sm); font-weight: 500; color: var(--text-secondary); position: relative; padding-block: var(--space-xs); }
+.nav-links a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 2px; background: var(--accent); border-radius: 1px; transition: width 300ms var(--ease-out-expo); }
+.nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+.nav-links a.active { color: var(--accent); }
+
+/* ============================================================
+   PAGE HERO
+   ============================================================ */
+.page-hero {
+  padding-block: calc(var(--header-h) + var(--space-3xl)) var(--space-2xl);
+  text-align: center;
+}
+.page-hero-icon { font-size: 3rem; margin-bottom: var(--space-md); }
+.page-hero h1 { font-family: 'Zen Old Mincho', serif; font-weight: 900; font-size: var(--text-2xl); margin-bottom: var(--space-sm); }
+.page-hero p { color: var(--text-secondary); font-size: var(--text-sm); max-width: 500px; margin-inline: auto; }
+
+/* ============================================================
+   CATEGORY FILTERS
+   ============================================================ */
+.filters {
+  display: flex; justify-content: center; gap: var(--space-sm); flex-wrap: wrap;
+  padding-bottom: var(--space-2xl); position: sticky; top: var(--header-h); z-index: 50;
+  background: oklch(12% 0.012 270 / 0.7); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding-top: var(--space-md); margin-bottom: var(--space-lg);
+}
+.filter-btn {
+  padding: 8px 20px; border-radius: 100px; font-size: var(--text-sm); font-weight: 500;
+  background: var(--glass-bg); border: 1px solid var(--border);
+  color: var(--text-secondary); cursor: pointer;
+  transition: all 300ms var(--ease-out-expo);
+}
+.filter-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+.filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.filter-count { font-size: var(--text-xs); opacity: 0.6; margin-left: 2px; }
+
+/* ============================================================
+   MASONRY GRID
+   ============================================================ */
+.gallery-grid {
+  columns: 3; column-gap: var(--space-lg); padding-bottom: var(--space-3xl);
+}
+@media (max-width: 1024px) { .gallery-grid { columns: 2; } }
+@media (max-width: 640px) { .gallery-grid { columns: 1; } }
+
+.gallery-card {
+  break-inside: avoid; margin-bottom: var(--space-lg);
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 16px;
+  overflow: hidden; cursor: pointer;
+  transition: all 300ms var(--ease-out-expo);
+}
+.gallery-card:hover {
+  border-color: oklch(60% 0.18 280 / 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px oklch(0% 0 0 / 0.3);
+}
+.gallery-card-img {
+  width: 100%; display: block; background: oklch(18% 0.05 280);
+  transition: transform 400ms var(--ease-out-expo);
+}
+.gallery-card:hover .gallery-card-img { transform: scale(1.03); }
+.gallery-card-body { padding: var(--space-md) var(--space-lg); }
+.gallery-card-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700; font-size: var(--text-base); color: var(--text-primary); margin-bottom: var(--space-xs); }
+.gallery-card-meta { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-sm); line-height: 1.5; }
+.gallery-card-prompt {
+  font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.6;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.gallery-card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: var(--space-sm); }
+.gallery-card-tag {
+  font-size: 0.65rem; padding: 2px 8px; border-radius: 100px;
+  background: oklch(60% 0.18 280 / 0.08); color: var(--accent-soft);
+  border: 1px solid oklch(60% 0.18 280 / 0.1);
+}
+
+/* ============================================================
+   LIGHTBOX
+   ============================================================ */
+.lightbox {
+  position: fixed; inset: 0; z-index: 300; background: oklch(0% 0 0 / 0.93);
+  backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.lightbox.open { display: flex; }
+.lightbox-img {
+  max-width: 90vw; max-height: 70vh; border-radius: 12px;
+  box-shadow: 0 24px 80px oklch(0% 0 0 / 0.5);
+  animation: lightboxIn 300ms var(--ease-out-expo);
+}
+@keyframes lightboxIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+.lightbox-close {
+  position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid oklch(100% 0 0 / 0.15); background: oklch(0% 0 0 / 0.4); color: #fff;
+  font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 200ms;
+}
+.lightbox-close:hover { border-color: var(--accent); }
+.lightbox-info {
+  margin-top: 16px; max-width: 500px; text-align: center;
+  padding: var(--space-md); background: oklch(100% 0 0 / 0.04); border-radius: 12px;
+}
+.lightbox-info h3 { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700; font-size: var(--text-sm); color: var(--text-primary); }
+.lightbox-info .prompt { font-size: var(--text-xs); color: var(--text-secondary); margin-top: var(--space-xs); line-height: 1.6; }
+.lightbox-nav { display: flex; align-items: center; gap: 24px; margin-top: 12px; }
+.lightbox-btn {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid oklch(100% 0 0 / 0.15);
+  background: oklch(0% 0 0 / 0.4); color: #fff; font-size: 1.2rem; cursor: pointer;
+  transition: all 200ms; display: flex; align-items: center; justify-content: center;
+}
+.lightbox-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+.lightbox-counter { color: var(--text-muted); font-size: var(--text-sm); min-width: 60px; text-align: center; }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state {
+  text-align: center; padding: var(--space-4xl) var(--space-2xl);
+}
+.empty-state-icon { font-size: 4rem; margin-bottom: var(--space-lg); opacity: 0.6; }
+.empty-state h3 { font-family: 'Zen Old Mincho', serif; font-size: var(--text-xl); color: var(--text-muted); margin-bottom: var(--space-sm); }
+.empty-state p { color: var(--text-muted); font-size: var(--text-sm); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.site-footer {
+  border-top: 1px solid var(--border); padding-block: var(--space-2xl);
+  text-align: center; color: var(--text-muted); font-size: var(--text-xs);
+}
+.footer-decor { font-family: 'Zen Old Mincho', serif; color: oklch(35% 0.03 270); letter-spacing: 0.2em; margin-bottom: var(--space-xs); }
+.footer-links { display: flex; justify-content: center; gap: var(--space-xl); margin-top: var(--space-md); }
+.footer-links a { font-size: var(--text-xs); color: var(--text-muted); }
+.footer-links a:hover { color: var(--accent); }
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width: 768px) {
+  .container { padding-inline: var(--space-lg); }
+  .page-hero { padding-block: calc(var(--header-h) + var(--space-2xl)) var(--space-xl); }
+  .page-hero h1 { font-size: var(--text-xl); }
+  .nav-links { gap: var(--space-md); }
+  .nav-links a { font-size: var(--text-xs); }
+  .filters { padding-top: var(--space-sm); padding-bottom: var(--space-lg); }
+  .filter-btn { padding: 6px 14px; font-size: var(--text-xs); }
+  .gallery-card-body { padding: var(--space-sm) var(--space-md); }
+  .lightbox-img { max-width: 95vw; max-height: 60vh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: oklch(25% 0.01 270); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<div class="noise-overlay" aria-hidden="true"></div>
+
+<!-- HEADER -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="../index.html" class="brand"><span class="brand-mark">月</span><span>QT新月</span></a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="../index.html">← 返回主页</a></li>
+        <li><a href="#all" class="filter-nav active" data-filter="all">全部</a></li>
+        <li><a href="#text2img" class="filter-nav" data-filter="text2img">文生图</a></li>
+        <li><a href="#img2img" class="filter-nav" data-filter="img2img">图生图</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<!-- PAGE HERO -->
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero-icon">🎨</div>
+    <h1>AI 图片作品集</h1>
+    <p>使用 AI 模型生成的艺术作品集合<br>包含文生图、风格迁移等创作</p>
+  </div>
+</section>
+
+<!-- FILTERS -->
+<div class="filters" id="filterBar">
+  <div class="container" style="display:flex;justify-content:center;gap:var(--space-sm);flex-wrap:wrap;">
+    <button class="filter-btn active" data-filter="all">全部 <span class="filter-count">0</span></button>
+    <button class="filter-btn" data-filter="text2img">文生图 <span class="filter-count">0</span></button>
+    <button class="filter-btn" data-filter="img2img">图生图 <span class="filter-count">0</span></button>
+    <button class="filter-btn" data-filter="other">其他 <span class="filter-count">0</span></button>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<section class="section">
+  <div class="container">
+    <div class="gallery-grid" id="galleryGrid">
+      <!-- Cards will be injected by JS -->
+    </div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <div class="empty-state-icon">🖼️</div>
+      <h3>还没有作品</h3>
+      <p>把 AI 生成的图片放入 projects/ai-images/ 目录<br>然后在这页的 IMAGES 数组中添加描述即可展示</p>
+    </div>
+  </div>
+</section>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="">
+  <div class="lightbox-info" id="lightboxInfo">
+    <h3 id="lightboxTitle"></h3>
+    <p class="prompt" id="lightboxPrompt"></p>
+  </div>
+  <div class="lightbox-nav">
+    <button class="lightbox-btn" onclick="lightboxPrev()">&#8249;</button>
+    <span class="lightbox-counter" id="lightboxCounter">1 / 1</span>
+    <button class="lightbox-btn" onclick="lightboxNext()">&#8250;</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <p class="footer-decor">新 · 月 · AI · 艺 · 术</p>
+  <div class="footer-links">
+    <a href="../index.html">回主页</a>
+    <a href="https://github.com/qtXingYue" target="_blank" rel="noopener">GitHub</a>
+    <a href="mailto:3128789194@qq.com">Email</a>
+  </div>
+  <p style="margin-top:var(--space-md)">&copy; 2026 QT新月</p>
+</footer>
+
+<script>
+// ============================================================
+// IMAGE DATA — add entries here
+// Format: { file, title, category, prompt, tags, date }
+// ============================================================
+const IMAGES = [
+  {
+    file: "ai-images/clipboard-2026-06-02T12-50-08-313Z-ab85d630.jpg",
+    title: "思乐智美容仪 · 萌系广告",
+    category: "img2img",
+    prompt: "粉色毛绒玩偶 mascot 手持美容仪产品，漫画风格爆炸对话框，绿色清新配色，电商广告海报设计，可爱卡通风格，高饱和度，商业摄影质感",
+    tags: ["产品广告", "萌系", "商业设计"],
+    date: "2026-06"
+  }
+];
+
+// ============================================================
+// RENDER
+// ============================================================
+let currentFilter = "all";
+let lightboxIdx = 0;
+let filteredImages = [];
+
+function getFilteredImages(filter) {
+  return filter === "all" ? IMAGES : IMAGES.filter(img => img.category === filter);
+}
+
+function renderGallery() {
+  const grid = document.getElementById("galleryGrid");
+  const empty = document.getElementById("emptyState");
+  filteredImages = getFilteredImages(currentFilter);
+
+  if (filteredImages.length === 0) {
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+
+  empty.style.display = "none";
+  grid.innerHTML = filteredImages.map((img, i) => `
+    <div class="gallery-card" onclick="openLightbox(${i})">
+      <img class="gallery-card-img" src="${img.file}" alt="${img.title}" loading="lazy"
+           onerror="this.style.background='oklch(18% 0.05 280)'; this.style.minHeight='200px'; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🖼️</text></svg>'">
+      <div class="gallery-card-body">
+        <h3 class="gallery-card-title">${img.title}</h3>
+        <p class="gallery-card-meta">${img.date} · ${categoryLabel(img.category)}</p>
+        <p class="gallery-card-prompt">${img.prompt}</p>
+        ${img.tags ? `<div class="gallery-card-tags">${img.tags.map(t => `<span class="gallery-card-tag">${t}</span>`).join("")}</div>` : ""}
+      </div>
+    </div>
+  `).join("");
+
+  updateCounts();
+}
+
+function categoryLabel(cat) {
+  const labels = { text2img: "文生图", img2img: "图生图", other: "其他" };
+  return labels[cat] || cat;
+}
+
+function updateCounts() {
+  const allCount = IMAGES.length;
+  const counts = { text2img: 0, img2img: 0, other: 0 };
+  IMAGES.forEach(img => {
+    if (counts[img.category] !== undefined) counts[img.category]++;
+  });
+
+  document.querySelectorAll(".filter-count").forEach(el => {
+    const filter = el.parentElement.dataset.filter;
+    if (filter === "all") el.textContent = allCount;
+    else el.textContent = counts[filter] || 0;
+  });
+}
+
+// ============================================================
+// FILTER LOGIC
+// ============================================================ */
+function setFilter(filter) {
+  currentFilter = filter;
+  document.querySelectorAll(".filter-btn, .filter-nav").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.filter === filter);
+  });
+  renderGallery();
+}
+
+// Filter button clicks
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => setFilter(btn.dataset.filter));
+});
+
+// Filter nav clicks
+document.querySelectorAll(".filter-nav").forEach(link => {
+  link.addEventListener("click", e => {
+    e.preventDefault();
+    setFilter(link.dataset.filter);
+    document.getElementById("filterBar").scrollIntoView({ behavior: "smooth" });
+  });
+});
+
+// ============================================================
+// LIGHTBOX
+// ============================================================ */
+function openLightbox(idx) {
+  lightboxIdx = idx;
+  updateLightbox();
+  document.getElementById("lightbox").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function updateLightbox() {
+  const img = filteredImages[lightboxIdx];
+  if (!img) return;
+  document.getElementById("lightboxImg").src = img.file;
+  document.getElementById("lightboxTitle").textContent = img.title;
+  document.getElementById("lightboxPrompt").textContent = img.prompt;
+  document.getElementById("lightboxCounter").textContent = `${lightboxIdx + 1} / ${filteredImages.length}`;
+}
+
+function closeLightbox() {
+  document.getElementById("lightbox").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function lightboxPrev() {
+  lightboxIdx = (lightboxIdx - 1 + filteredImages.length) % filteredImages.length;
+  updateLightbox();
+}
+
+function lightboxNext() {
+  lightboxIdx = (lightboxIdx + 1) % filteredImages.length;
+  updateLightbox();
+}
+
+// Lightbox overlay click
+document.getElementById("lightbox").addEventListener("click", function(e) {
+  if (e.target === this) closeLightbox();
+});
+
+// Keyboard navigation
+document.addEventListener("keydown", function(e) {
+  const lb = document.getElementById("lightbox");
+  if (!lb.classList.contains("open")) return;
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowLeft") lightboxPrev();
+  if (e.key === "ArrowRight") lightboxNext();
+});
+
+// ============================================================
+// INIT
+// ============================================================ */
+renderGallery();
+</script>
+
+</body>
+</html>
