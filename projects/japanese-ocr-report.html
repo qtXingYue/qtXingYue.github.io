@@ -54,10 +54,12 @@ li{margin-bottom:.25rem;color:#ccc}
 <li><strong>Epochs：</strong>7 · <strong>Batch Size：</strong>64</li>
 <li><strong>早停法：</strong>patience=7，防止过拟合</li>
 <li><strong>学习率调度：</strong>ReduceLROnPlateau 动态调整</li>
-<li><strong>最终准确率：</strong>约 <strong>88.2%</strong></li>
-</ul>
-
-<h2>五、UI 界面</h2>
+         <li><strong>最终准确率：</strong>约 <strong>88.2%</strong></li>
+         </ul>
+         <p><strong>训练曲线：</strong></p>
+         <img src="japanese-ocr-imgs/image1.png" alt="训练曲线" style="max-width:100%;border-radius:8px;margin:1rem 0">
+         
+         <h2>五、UI 界面</h2>
 <p>使用 <strong>Tkinter</strong> 构建手写识别桌面应用：</p>
 <ul>
 <li>白色画布 + 黑色笔迹（与训练数据格式一致）</li>
@@ -69,6 +71,10 @@ li{margin-bottom:.25rem;color:#ccc}
 <h2>六、关键问题解决</h2>
 <h3>问题 1：黑底白字导致识别错误</h3>
 <p>初始版本画布背景为黑色，与训练数据（白底黑字）不一致。改为白色背景 + 黑色笔迹后问题解决。</p>
+<p><strong>修复前（黑底白字）：</strong></p>
+<img src="japanese-ocr-imgs/image2.png" alt="黑底白字版本" style="max-width:100%;border-radius:8px;margin:1rem 0">
+<p><strong>修复后（白底黑字）：</strong></p>
+<img src="japanese-ocr-imgs/image3.png" alt="白底黑字正确识别" style="max-width:100%;border-radius:8px;margin:1rem 0">
 <h3>问题 2：截图区域偏移</h3>
 <p>非全屏窗口下 <code>ImageGrab.grab()</code> 捕获区域错误。通过 <code>winfo_rootx()</code> / <code>winfo_x()</code> 获取画布绝对坐标精准定位。</p>
 
