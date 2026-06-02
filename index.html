@@ -294,6 +294,36 @@ a:hover { color: var(--gold); }
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: oklch(25% 0.01 270); border-radius: 3px; }
+
+/* ============================================================
+   GALLERY LIGHTBOX
+   ============================================================ */
+.gallery-overlay {
+  position: fixed; inset: 0; z-index: 300; background: oklch(0% 0 0 / 0.92);
+  backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center;
+  flex-direction: column;
+}
+.gallery-overlay.open { display: flex; }
+.gallery-viewer { max-width: 90vw; max-height: 75vh; border-radius: 12px; box-shadow: 0 24px 80px oklch(0% 0 0 / 0.5); }
+.gallery-close {
+  position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid oklch(100% 0 0 / 0.15); background: oklch(0% 0 0 / 0.4); color: #fff;
+  font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 200ms;
+}
+.gallery-close:hover { border-color: var(--accent); }
+.gallery-nav { display: flex; align-items: center; gap: 24px; margin-top: 16px; }
+.gallery-btn {
+  width: 44px; height: 44px; border-radius: 50%; border: 1px solid oklch(100% 0 0 / 0.15);
+  background: oklch(0% 0 0 / 0.4); color: #fff; font-size: 1.2rem; cursor: pointer;
+  transition: all 200ms; display: flex; align-items: center; justify-content: center;
+}
+.gallery-btn:hover { border-color: var(--accent); background: var(--accent-dim); }
+.gallery-counter { color: var(--text-muted); font-size: var(--text-sm); min-width: 60px; text-align: center; }
+.gallery-thumbs { display: flex; gap: 8px; margin-top: 16px; overflow-x: auto; max-width: 90vw; padding-bottom: 8px; }
+.gallery-thumb { width: 80px; height: 48px; object-fit: cover; border-radius: 6px; border: 2px solid transparent; cursor: pointer; opacity: 0.5; transition: all 200ms; flex-shrink: 0; }
+.gallery-thumb.active, .gallery-thumb:hover { border-color: var(--accent); opacity: 1; }
+@keyframes galleryFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 </style>
 </head>
 <body>
@@ -439,6 +469,7 @@ a:hover { color: var(--gold); }
         <div class="project-tech">
           <span class="skill-tag">Python</span><span class="skill-tag">Playwright</span><span class="skill-tag">Streamlit</span><span class="skill-tag">Excel</span><span class="skill-tag">REST API</span>
         </div>
+        <a class="project-link" href="#" onclick="openGallery(event)">📸 查看演示截图</a>
       </div>
     </article>
 
@@ -631,6 +662,61 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
     const target = document.querySelector(link.getAttribute('href'));
     if (target) target.scrollIntoView({ behavior: 'smooth' });
   });
+});
+</script>
+
+<!-- Gallery Lightbox -->
+<div class="gallery-overlay" id="galleryOverlay">
+  <button class="gallery-close" onclick="closeGallery()">&times;</button>
+  <img class="gallery-viewer" id="galleryViewer" src="" alt="截图">
+  <div class="gallery-nav">
+    <button class="gallery-btn" onclick="galleryPrev()">&#8249;</button>
+    <span class="gallery-counter" id="galleryCounter">1 / 1</span>
+    <button class="gallery-btn" onclick="galleryNext()">&#8250;</button>
+  </div>
+  <div class="gallery-thumbs" id="galleryThumbs"></div>
+</div>
+
+<script>
+const GALLERY_IMAGES = [
+  "projects/data-crawler/dashboard-1.png",
+  "projects/data-crawler/daily-trend.png",
+  "projects/data-crawler/top20-balance.png",
+  "projects/data-crawler/top20-month.png",
+  "projects/data-crawler/chart-trend.png",
+  "projects/data-crawler/chart-pie.png",
+  "projects/data-crawler/search.png",
+  "projects/data-crawler/alert.png"
+];
+let galleryIdx = 0;
+
+function openGallery(e) { e.preventDefault(); galleryIdx = 0; showGallery(); }
+function showGallery() {
+  document.getElementById("galleryViewer").src = GALLERY_IMAGES[galleryIdx];
+  document.getElementById("galleryCounter").textContent = `${galleryIdx + 1} / ${GALLERY_IMAGES.length}`;
+  document.getElementById("galleryOverlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+  // Update thumbs
+  const thumbs = document.getElementById("galleryThumbs");
+  thumbs.innerHTML = GALLERY_IMAGES.map((img, i) =>
+    `<img class="gallery-thumb${i === galleryIdx ? ' active' : ''}" src="${img}" onclick="galleryIdx=${i};showGallery()">`
+  ).join("");
+}
+function galleryPrev() { galleryIdx = (galleryIdx - 1 + GALLERY_IMAGES.length) % GALLERY_IMAGES.length; showGallery(); }
+function galleryNext() { galleryIdx = (galleryIdx + 1) % GALLERY_IMAGES.length; showGallery(); }
+function closeGallery() {
+  document.getElementById("galleryOverlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+document.getElementById("galleryOverlay").addEventListener("click", function(e) {
+  if (e.target === this) closeGallery();
+});
+document.addEventListener("keydown", function(e) {
+  const ov = document.getElementById("galleryOverlay");
+  if (!ov.classList.contains("open")) return;
+  if (e.key === "Escape") closeGallery();
+  if (e.key === "ArrowLeft") galleryPrev();
+  if (e.key === "ArrowRight") galleryNext();
 });
 </script>
 
