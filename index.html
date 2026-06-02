@@ -239,6 +239,8 @@ a:hover { color: var(--gold); }
 .project-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: var(--text-xl); color: var(--text-primary); margin-bottom: var(--space-sm); line-height: 1.3; }
 .project-desc { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.8; margin-bottom: var(--space-md); }
 .project-tech { display: flex; flex-wrap: wrap; gap: var(--space-xs); margin-bottom: var(--space-lg); }
+.project-link { display: inline-flex; align-items: center; gap: 4px; font-size: var(--text-sm); color: var(--accent); text-decoration: none; border: 1px solid var(--accent-dim); border-radius: 100px; padding: 4px 14px; transition: all 200ms; margin-bottom: var(--space-lg); }
+.project-link:hover { background: var(--accent-dim); color: #fff; }
 @media (max-width: 768px) {
   .project-card, .project-card:nth-child(even) { grid-template-columns: 1fr; gap: var(--space-xl); }
   .project-card:nth-child(even) .project-visual { order: -1; }
@@ -450,6 +452,7 @@ a:hover { color: var(--gold); }
         <div class="project-tech">
           <span class="skill-tag">Python</span><span class="skill-tag">MediaPipe</span><span class="skill-tag">OpenCV</span><span class="skill-tag">CustomTkinter</span><span class="skill-tag">PyAutoGUI</span>
         </div>
+        <a class="project-link" href="projects/gesture-ppt-paper.pdf" target="_blank">📄 查看论文</a>
       </div>
     </article>
 
@@ -463,6 +466,7 @@ a:hover { color: var(--gold); }
         <div class="project-tech">
           <span class="skill-tag">PyTorch</span><span class="skill-tag">AnimeGAN2</span><span class="skill-tag">Gradio</span><span class="skill-tag">OpenCV</span><span class="skill-tag">GAN</span>
         </div>
+        <a class="project-link" href="projects/cartoon-gan-report.pdf" target="_blank">📄 查看报告</a>
       </div>
     </article>
 
@@ -489,6 +493,7 @@ a:hover { color: var(--gold); }
         <div class="project-tech">
           <span class="skill-tag">Python</span><span class="skill-tag">Pyecharts</span><span class="skill-tag">Geo</span><span class="skill-tag">数据可视化</span><span class="skill-tag">HTML</span>
         </div>
+        <a class="project-link" href="projects/meizhou-demo.html" target="_blank">🌐 在线演示</a>
       </div>
     </article>
 
@@ -528,6 +533,7 @@ a:hover { color: var(--gold); }
         <div class="project-tech">
           <span class="skill-tag">Java</span><span class="skill-tag">Servlet</span><span class="skill-tag">MySQL</span><span class="skill-tag">微信小程序</span><span class="skill-tag">JSP</span>
         </div>
+        <a class="project-link" href="projects/anime-shop-report.pdf" target="_blank">📄 查看报告</a>
       </div>
     </article>
   </div>
