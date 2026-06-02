@@ -156,7 +156,7 @@ a:hover { color: var(--gold); }
   box-shadow: 0 12px 40px oklch(0% 0 0 / 0.3);
 }
 .gallery-card-img {
-  width: 100%; display: block; background: oklch(18% 0.05 280);
+  width: 100%; display: block;
   transition: transform 400ms var(--ease-out-expo);
 }
 .gallery-card:hover .gallery-card-img { transform: scale(1.03); }
@@ -172,6 +172,11 @@ a:hover { color: var(--gold); }
   font-size: 0.65rem; padding: 2px 8px; border-radius: 100px;
   background: oklch(60% 0.18 280 / 0.08); color: var(--accent-soft);
   border: 1px solid oklch(60% 0.18 280 / 0.1);
+}
+.gallery-card-img-wrap { position: relative; width: 100%; min-height: 180px; background: oklch(18% 0.05 280); overflow: hidden; }
+.gallery-card-fallback {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  background: oklch(18% 0.05 280);
 }
 
 /* ============================================================
@@ -375,8 +380,13 @@ function renderGallery() {
   empty.style.display = "none";
   grid.innerHTML = filteredImages.map((img, i) => `
     <div class="gallery-card" onclick="openLightbox(${i})">
-      <img class="gallery-card-img" src="${img.file}" alt="${img.title}" loading="lazy"
-           onerror="this.style.background='oklch(18% 0.05 280)'; this.style.minHeight='200px'; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🖼️</text></svg>'">
+      <div class="gallery-card-img-wrap">
+        <img class="gallery-card-img" src="${img.file}" alt="${img.title}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+        <div class="gallery-card-fallback" style="display:none">
+          <svg viewBox="0 0 60 60" width="48" height="48"><rect width="60" height="60" rx="12" fill="oklch(25% 0.05 280)"/><text x="30" y="40" text-anchor="middle" font-size="28">🖼</text></svg>
+        </div>
+      </div>
       <div class="gallery-card-body">
         <h3 class="gallery-card-title">${img.title}</h3>
         <p class="gallery-card-meta">${img.date} · ${categoryLabel(img.category)}</p>
