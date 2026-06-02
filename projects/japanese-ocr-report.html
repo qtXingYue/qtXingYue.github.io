@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日语假名手写识别 — 课程设计报告</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a1a;color:#ddd;padding:2rem;line-height:1.8}
+.container{max-width:800px;margin:0 auto}
+h1{color:#8b5cf6;font-size:2rem;text-align:center;margin-bottom:.5rem}
+.meta{text-align:center;color:#666;font-size:.875rem;margin-bottom:2rem;border-bottom:1px solid #222;padding-bottom:1rem}
+h2{color:#8b5cf6;font-size:1.25rem;margin:2rem 0 .75rem;border-left:3px solid #8b5cf6;padding-left:.75rem}
+h3{color:#aaa;font-size:1rem;margin:1.5rem 0 .5rem}
+p{margin-bottom:.75rem;color:#ccc}
+table{width:100%;border-collapse:collapse;margin:1rem 0;background:#111;border-radius:8px;overflow:hidden}
+th,td{padding:.75rem;text-align:left;border-bottom:1px solid #222}
+th{color:#666;font-weight:500;background:#0d0d0d}
+code{background:#1a1a3e;padding:2px 8px;border-radius:4px;font-size:.875rem;color:#8b5cf6}
+ul{padding-left:1.5rem;margin:.75rem 0}
+li{margin-bottom:.25rem;color:#ccc}
+.back{display:inline-block;margin:2rem 0;color:#8b5cf6;text-decoration:none}
+.back:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>日语假名手写识别系统</h1>
+<p class="meta">深度学习课程设计报告 · 钟文清 · 230200813 · 23智能2</p>
+
+<h2>一、项目简介</h2>
+<p>本项目基于 CNN 卷积神经网络构建日语假名手写识别系统，包含<strong>模型训练、测试集验证、Tkinter 手写板 UI</strong>三大模块。用户可在画布上手写日语假名，系统实时识别并显示结果。</p>
+<p><strong>系统环境：</strong>Python 3.10 · TensorFlow GPU</p>
+
+<h2>二、数据集</h2>
+<p><strong>Kuzushiji-49</strong> 数据集，包含 49 个日语假名字符类别（48 平假名 + 1 迭代标记），总计 <strong>270,912 张</strong> 28×28 灰度图像。</p>
+
+<h2>三、模型架构</h2>
+<table>
+<tr><th>层</th><th>配置</th></tr>
+<tr><td>卷积层 1</td><td>32 通道 → BatchNorm → Dropout</td></tr>
+<tr><td>卷积层 2</td><td>64 通道 → BatchNorm → Dropout</td></tr>
+<tr><td>卷积层 3</td><td>128 通道 → BatchNorm → Dropout</td></tr>
+<tr><td>全连接 1</td><td>1024 神经元</td></tr>
+<tr><td>全连接 2</td><td>512 神经元</td></tr>
+<tr><td>输出层</td><td>49 类 Softmax</td></tr>
+</table>
+
+<h2>四、训练策略</h2>
+<ul>
+<li><strong>优化器：</strong>Adam</li>
+<li><strong>损失函数：</strong>交叉熵 (CrossEntropy)</li>
+<li><strong>Epochs：</strong>7 · <strong>Batch Size：</strong>64</li>
+<li><strong>早停法：</strong>patience=7，防止过拟合</li>
+<li><strong>学习率调度：</strong>ReduceLROnPlateau 动态调整</li>
+<li><strong>最终准确率：</strong>约 <strong>88.2%</strong></li>
+</ul>
+
+<h2>五、UI 界面</h2>
+<p>使用 <strong>Tkinter</strong> 构建手写识别桌面应用：</p>
+<ul>
+<li>白色画布 + 黑色笔迹（与训练数据格式一致）</li>
+<li>"清除"按钮清空画布，"识别"按钮触发预测</li>
+<li>精准的屏幕坐标截图区域定位</li>
+<li>实时显示识别结果</li>
+</ul>
+
+<h2>六、关键问题解决</h2>
+<h3>问题 1：黑底白字导致识别错误</h3>
+<p>初始版本画布背景为黑色，与训练数据（白底黑字）不一致。改为白色背景 + 黑色笔迹后问题解决。</p>
+<h3>问题 2：截图区域偏移</h3>
+<p>非全屏窗口下 <code>ImageGrab.grab()</code> 捕获区域错误。通过 <code>winfo_rootx()</code> / <code>winfo_x()</code> 获取画布绝对坐标精准定位。</p>
+
+<h2>七、技术选型</h2>
+<table>
+<tr><th>模块</th><th>技术</th><th>对应知识点</th></tr>
+<tr><td>数据处理</td><td>NumPy + Matplotlib</td><td>通用数据预处理流程</td></tr>
+<tr><td>模型构建</td><td>TensorFlow + Keras CNN</td><td>图像分类模型</td></tr>
+<tr><td>UI 界面</td><td>Tkinter</td><td>手写数字 UI 案例</td></tr>
+<tr><td>模型部署</td><td>load_model 函数</td><td>模型加载方法</td></tr>
+</table>
+
+<a href="../index.html" class="back">← 返回作品集</a>
+
+</div>
+</body>
+</html>
