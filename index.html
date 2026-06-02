@@ -274,49 +274,6 @@ a:hover { color: var(--gold); }
 @media (max-width: 640px) { .contact-grid { grid-template-columns: 1fr; } }
 
 /* ============================================================
-   BLOG
-   ============================================================ */
-.blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: var(--space-xl); }
-.blog-card {
-  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border); border-radius: 16px; padding: var(--space-xl);
-  cursor: pointer; transition: all 300ms var(--ease-out-expo);
-}
-.blog-card:hover { border-color: oklch(60% 0.18 280 / 0.3); transform: translateY(-4px); box-shadow: 0 12px 48px oklch(0% 0 0 / 0.3); }
-.blog-card-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700; font-size: var(--text-lg); color: var(--text-primary); margin-bottom: var(--space-sm); line-height: 1.4; }
-.blog-card-date { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-md); }
-.blog-card-excerpt { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-.blog-empty { text-align: center; color: var(--text-muted); padding: var(--space-3xl); font-size: var(--text-sm); }
-
-/* Article Detail Overlay */
-.blog-overlay {
-  position: fixed; inset: 0; z-index: 200; background: oklch(0% 0 0 / 0.85);
-  backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center;
-  padding: var(--space-xl);
-}
-.blog-overlay.open { display: flex; }
-.blog-detail {
-  background: var(--bg-base); border: 1px solid var(--border); border-radius: 20px;
-  max-width: 720px; width: 100%; max-height: 85vh; overflow-y: auto; padding: var(--space-2xl);
-  position: relative; animation: fadeInUp 300ms var(--ease-out-expo);
-}
-.blog-detail-close {
-  position: absolute; top: var(--space-md); right: var(--space-md);
-  width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border);
-  background: var(--glass-bg); color: var(--text-secondary); cursor: pointer;
-  display: flex; align-items: center; justify-content: center; font-size: var(--text-lg);
-  transition: all 200ms;
-}
-.blog-detail-close:hover { border-color: var(--accent); color: var(--accent); }
-.blog-detail-title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: var(--text-xl); color: var(--text-primary); margin-bottom: var(--space-sm); }
-.blog-detail-date { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-xl); }
-.blog-detail-body { font-size: var(--text-base); color: var(--text-secondary); line-height: 2; }
-.blog-detail-body img { max-width: 100%; border-radius: 12px; margin: var(--space-lg) 0; }
-.blog-detail-body a { color: var(--accent); text-decoration: underline; }
-.blog-detail-body h2, .blog-detail-body h3 { color: var(--text-primary); margin: var(--space-xl) 0 var(--space-md); }
-.blog-detail-body p { margin-bottom: var(--space-md); }
-
-/* ============================================================
    FOOTER
    ============================================================ */
 .site-footer { border-top: 1px solid var(--border); padding-block: var(--space-2xl); text-align: center; color: var(--text-muted); font-size: var(--text-xs); }
@@ -350,7 +307,6 @@ a:hover { color: var(--gold); }
         <li><a href="#about">关于</a></li>
         <li><a href="#skills">技能</a></li>
         <li><a href="#projects">项目</a></li>
-        <li><a href="#blog">博客</a></li>
         <li><a href="#contact">联系</a></li>
         <li><button class="theme-toggle" id="themeToggle" aria-label="切换主题">🌙</button></li>
       </ul>
@@ -577,28 +533,6 @@ a:hover { color: var(--gold); }
   </div>
 </section>
 
-<!-- BLOG -->
-<section class="section" id="blog">
-  <div class="container">
-    <p class="section-label">Blog</p>
-    <h2 class="section-title">博客</h2>
-    <div class="section-divider"></div>
-    <div class="blog-grid" id="blogGrid">
-      <div class="blog-empty">加载中...</div>
-    </div>
-  </div>
-</section>
-
-<!-- Blog Detail Overlay -->
-<div class="blog-overlay" id="blogOverlay">
-  <article class="blog-detail">
-    <button class="blog-detail-close" onclick="closeBlog()">&times;</button>
-    <h2 class="blog-detail-title" id="blogDetailTitle"></h2>
-    <p class="blog-detail-date" id="blogDetailDate"></p>
-    <div class="blog-detail-body" id="blogDetailBody"></div>
-  </article>
-</div>
-
 <!-- EXPERIENCE -->
 <section class="section">
   <div class="container">
@@ -695,68 +629,6 @@ document.querySelectorAll('a[href^="#"]').forEach(link => {
     if (target) target.scrollIntoView({ behavior: 'smooth' });
   });
 });
-
-// Blog - fetch & render
-async function loadBlog() {
-  const grid = document.getElementById('blogGrid');
-  try {
-    const res = await fetch('/api/articles');
-    const articles = await res.json();
-    if (!articles.length) {
-      grid.innerHTML = '<div class="blog-empty">还没有文章，敬请期待 ✦</div>';
-      return;
-    }
-    grid.innerHTML = articles.map(a => `
-      <article class="blog-card" onclick="openBlog('${a.slug}')">
-        <h3 class="blog-card-title">${escapeHtml(a.title)}</h3>
-        <p class="blog-card-date">${a.created_at ? a.created_at.slice(0, 10) : ''}</p>
-        <p class="blog-card-excerpt">${escapeHtml(a.excerpt || '')}</p>
-      </article>
-    `).join('');
-  } catch (e) {
-    grid.innerHTML = '<div class="blog-empty">加载失败，请稍后重试</div>';
-  }
-}
-
-async function openBlog(slug) {
-  try {
-    const res = await fetch('/api/articles/' + slug);
-    const a = await res.json();
-    document.getElementById('blogDetailTitle').textContent = a.title;
-    document.getElementById('blogDetailDate').textContent = a.created_at ? a.created_at.slice(0, 10) : '';
-    document.getElementById('blogDetailBody').innerHTML = a.content || '';
-    document.getElementById('blogOverlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  } catch (e) {
-    alert('文章加载失败');
-  }
-}
-
-function closeBlog() {
-  document.getElementById('blogOverlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-document.getElementById('blogOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeBlog();
-});
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeBlog();
-});
-
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-loadBlog();
-</script>
-
-<!-- Sakura Analytics Tracker -->
-<script async>
-(function(){var u=new URL(location.href);fetch("/api/analytics/hit",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({path:u.pathname,title:document.title,ref:document.referrer||""})}).catch(function(){})})();
 </script>
 
 </body>
