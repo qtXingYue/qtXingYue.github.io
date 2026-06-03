@@ -308,8 +308,9 @@ a:hover { color: var(--gold); }
   body { font-size: 0.95rem; }
 
   /* Header */
-  .nav-links { gap: var(--space-md); }
-  .nav-links a { font-size: var(--text-xs); }
+  .nav-links { gap: 10px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .nav-links a { font-size: var(--text-xs); white-space: nowrap; }
+  .nav-links::-webkit-scrollbar { display: none; }
 
   /* Hero */
   .hero-name { font-size: clamp(2rem, 12vw, 3.5rem); }
