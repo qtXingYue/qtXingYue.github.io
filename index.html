@@ -10,6 +10,7 @@
 <meta property="og:type" content="website">
 <meta name="keywords" content="钟文清,QT新月,个人作品集,Python,深度学习,计算机视觉,数据工程,深圳职业技术大学">
 <meta name="view-transition" content="same-origin">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%236d28d9'/><text x='32' y='46' text-anchor='middle' font-size='36' font-family='sans-serif' fill='white'>月</text></svg>">
 <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -274,6 +275,22 @@ a:hover { color: var(--gold); }
 .timeline-desc { font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-sm); line-height: 1.7; }
 
 /* ============================================================
+   BLOG PREVIEW
+   ============================================================ */
+.blog-cards { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); }
+.blog-card-preview {
+  background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border); border-radius: 14px; padding: var(--space-2xl);
+  transition: all 300ms var(--ease-out-expo);
+}
+.blog-card-preview:hover { border-color: oklch(60% 0.18 280 / 0.2); transform: translateY(-3px); }
+.blog-card-preview a { text-decoration: none; color: inherit; }
+.blog-card-preview .date { font-size: var(--text-xs); color: var(--gold); margin-bottom: var(--space-xs); }
+.blog-card-preview .title { font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 700; font-size: var(--text-base); color: var(--text-primary); margin-bottom: var(--space-sm); }
+.blog-card-preview .excerpt { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+@media (max-width: 640px) { .blog-cards { grid-template-columns: 1fr; } }
+
+/* ============================================================
    CONTACT
    ============================================================ */
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2xl); }
@@ -287,6 +304,26 @@ a:hover { color: var(--gold); }
 .contact-label { font-size: var(--text-xs); color: var(--text-muted); }
 .contact-value { font-size: var(--text-base); color: var(--text-primary); font-weight: 500; }
 @media (max-width: 640px) { .contact-grid { grid-template-columns: 1fr; } }
+
+/* Contact Form */
+.contact-form-wrap { margin-top: var(--space-2xl); }
+.contact-form { display: flex; flex-direction: column; gap: var(--space-md); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+@media (max-width: 640px) { .form-row { grid-template-columns: 1fr; } }
+.contact-form input, .contact-form textarea {
+  width: 100%; padding: 0.75rem 1rem; background: var(--glass-bg); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text-primary); font-size: var(--text-sm); font-family: inherit;
+  transition: border-color 200ms;
+}
+.contact-form input:focus, .contact-form textarea:focus { outline: none; border-color: var(--accent); }
+.contact-form textarea { resize: vertical; }
+.contact-form button {
+  align-self: flex-start; padding: 0.75rem 2.5rem; background: var(--accent); color: #fff; border: none;
+  border-radius: 10px; font-size: var(--text-sm); font-weight: 600; cursor: pointer; transition: all 200ms;
+}
+.contact-form button:hover { background: oklch(50% 0.18 280); }
+.form-msg { font-size: var(--text-xs); color: var(--gold); }
+.form-msg.error { color: #e74c3c; }
 
 /* ============================================================
    FOOTER
@@ -395,14 +432,6 @@ a:hover { color: var(--gold); }
 .gallery-thumb.active, .gallery-thumb:hover { border-color: var(--accent); opacity: 1; }
 @keyframes galleryFadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-/* Mouse glow */
-.cursor-glow {
-  position: fixed; pointer-events: none; z-index: 1; width: 600px; height: 600px;
-  border-radius: 50%; background: radial-gradient(circle, oklch(60% 0.15 280 / 0.08) 0%, transparent 70%);
-  transform: translate(-50%, -50%); transition: opacity 0.3s; opacity: 0;
-}
-.cursor-glow.active { opacity: 1; }
-
 /* Particle container */
 #tsparticles { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 </style>
@@ -410,7 +439,6 @@ a:hover { color: var(--gold); }
 <body>
 
 <div class="noise-overlay" aria-hidden="true"></div>
-<div class="cursor-glow" id="cursorGlow"></div>
 <div id="tsparticles"></div>
 
 <!-- HEADER -->
@@ -735,6 +763,16 @@ a:hover { color: var(--gold); }
   </div>
 </section>
 
+<!-- LATEST BLOG -->
+<section class="section" id="blog-preview">
+  <div class="container">
+    <p class="section-label">Blog</p>
+    <h2 class="section-title">最新文章</h2>
+    <div class="section-divider"></div>
+    <div class="blog-cards" id="blogCards"><p style="color:var(--text-muted);text-align:center">加载中...</p></div>
+  </div>
+</section>
+
 <!-- EXPERIENCE -->
 <section class="section">
   <div class="container">
@@ -797,10 +835,15 @@ a:hover { color: var(--gold); }
         <div class="contact-icon">📍</div>
         <div><p class="contact-label">Location</p><p class="contact-value">中国 · 深圳</p></div>
       </div>
-      <a href="mailto:3128789194@qq.com" class="contact-item" style="color:inherit;text-decoration:none;">
-        <div class="contact-icon">📧</div>
-        <div><p class="contact-label">Email</p><p class="contact-value">3128789194@qq.com</p></div>
-      </a>
+    </div>
+    <div class="contact-form-wrap">
+      <h3 style="font-family:'M PLUS Rounded 1c',sans-serif;font-size:1.1rem;color:var(--text-primary);margin-bottom:1rem">发送消息</h3>
+      <form class="contact-form" id="contactForm" onsubmit="return handleContactSubmit(event)">
+        <div class="form-row"><input name="name" placeholder="姓名" required><input name="email" type="email" placeholder="邮箱" required></div>
+        <textarea name="message" placeholder="你的消息..." rows="4" required></textarea>
+        <button type="submit">发送</button>
+        <p class="form-msg" id="formMsg"></p>
+      </form>
     </div>
   </div>
 </section>
@@ -919,19 +962,6 @@ tsParticles.load("tsparticles", {
 });
 
 // ============================================================
-// Mouse glow
-// ============================================================
-const glow = document.getElementById("cursorGlow");
-let glowTimeout;
-document.addEventListener("mousemove", e => {
-  glow.style.left = e.clientX + "px";
-  glow.style.top = e.clientY + "px";
-  glow.classList.add("active");
-  clearTimeout(glowTimeout);
-  glowTimeout = setTimeout(() => glow.classList.remove("active"), 2000);
-});
-
-// ============================================================
 // GSAP + ScrollTrigger — 视差滚动
 // ============================================================
 gsap.registerPlugin(ScrollTrigger);
@@ -957,6 +987,60 @@ gsap.utils.toArray("[data-reveal]").forEach((el, i) => {
     scrollTrigger: { trigger: el, start: "top 85%" }
   });
 });
+
+// ============================================================
+// Blog preview
+// ============================================================
+async function loadBlogPreview() {
+  const el = document.getElementById("blogCards");
+  try {
+    const res = await fetch("/api/articles");
+    const articles = await res.json();
+    if (!articles.length) { el.innerHTML = '<p style="color:var(--text-muted);text-align:center">还没有文章</p>'; return; }
+    el.innerHTML = articles.slice(0, 4).map(a => `
+      <div class="blog-card-preview">
+        <a href="/blog.html?slug=${a.slug}">
+          <p class="date">${a.created_at?.slice(0,10)}</p>
+          <h3 class="title">${a.title}</h3>
+          <p class="excerpt">${a.excerpt || ''}</p>
+        </a>
+      </div>
+    `).join("");
+  } catch(e) { el.innerHTML = '<p style="color:var(--text-muted);text-align:center">—</p>'; }
+}
+loadBlogPreview();
+
+// ============================================================
+// Contact form
+// ============================================================
+async function handleContactSubmit(e) {
+  e.preventDefault();
+  const form = document.getElementById("contactForm");
+  const msg = document.getElementById("formMsg");
+  msg.className = "form-msg"; msg.textContent = "发送中...";
+  try {
+    const res = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name.value,
+        email: form.email.value,
+        message: form.message.value
+      })
+    });
+    if (res.ok) {
+      msg.textContent = "发送成功！感谢你的留言 ✦";
+      form.reset();
+    } else {
+      const err = await res.json();
+      msg.className = "form-msg error";
+      msg.textContent = err.detail || "发送失败，请稍后再试";
+    }
+  } catch(e) {
+    msg.className = "form-msg error";
+    msg.textContent = "网络错误，请稍后再试";
+  }
+}
 </script>
 
 </body>
